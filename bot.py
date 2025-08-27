@@ -36,7 +36,7 @@ def echo_all(message):
 # ===============================
 # 🌍 Flask Web App (for Render + UptimeRobot)
 # ===============================
-app = Flask(_name_)
+app = Flask(__name__)
 
 @app.route("/")
 def home():
@@ -77,3 +77,4 @@ if _name_ == "_main_":
     port = int(os.environ.get("PORT", 5000))
     logging.info(f"Starting Flask server on port {port}...")
     app.run(host="0.0.0.0", port=port)
+
