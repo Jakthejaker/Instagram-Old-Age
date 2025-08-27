@@ -1,0 +1,21 @@
+# Add this to your database handling code
+def init_db():
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        # Create tables if they don't exist
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                balance REAL DEFAULT 0
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS stock (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                reward TEXT
+            )
+        ''')
+        conn.commit()
+
+# Call this when your app starts
+init_db()
