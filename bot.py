@@ -7,7 +7,7 @@ from flask import Flask, request
 import os
 from contextlib import contextmanager
 
-# Initialize Flask app (for web server functionality)
+# Initialize Flask app
 app = Flask(__name__)
 
 # Initialize bot with your token
@@ -150,8 +150,8 @@ def show_balance(message):
 @bot.message_handler(commands=['addstock'])
 def add_stock_command(message):
     user_id = message.from_user.id
-    # Check if user is admin (you should replace with your admin ID)
-    if user_id != YOUR_ADMIN_USER_ID:
+    # Check if user is admin (replace with your admin ID)
+    if user_id != 123456789:  # Replace with your admin user ID
         bot.reply_to(message, "❌ This command is for administrators only.")
         return
     
@@ -233,7 +233,7 @@ def get_stock_reward(stock_id):
         result = cursor.fetchone()
         return result['reward'] if result else "Unknown"
 
-# Flask routes for health checks (required by Render)
+# Flask routes for health checks
 @app.route('/')
 def home():
     return "Telegram bot is running!"
