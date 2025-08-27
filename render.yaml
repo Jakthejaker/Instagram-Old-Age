@@ -1,34 +1,10 @@
 services:
   - type: web
     name: telegram-bot
-    env: python
+    env: docker
     plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python bot.py"
     envVars:
       - key: BOT_TOKEN
         sync: false
-      - key: PGDATABASE
-        fromDatabase:
-          name: bot-db
-          property: database
-      - key: PGUSER
-        fromDatabase:
-          name: bot-db
-          property: user
-      - key: PGPASSWORD
-        fromDatabase:
-          name: bot-db
-          property: password
-      - key: PGHOST
-        fromDatabase:
-          name: bot-db
-          property: host
-      - key: PGPORT
-        fromDatabase:
-          name: bot-db
-          property: port
-
-databases:
-  - name: bot-db
-    plan: free
+      - key: ADMIN_ID
+        sync: false
