@@ -3,16 +3,14 @@ import threading
 import telebot
 from flask import Flask
 
-# Get Telegram Bot Token from environment variable
+# ====== ENV & BOT ======
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 if not BOT_TOKEN:
-    raise ValueError("❌ BOT_TOKEN not set. Please add it in Render environment variables.")
+    raise RuntimeError("❌ BOT_TOKEN not set. Please add it in Render environment variables.")
 
-# Initialize bot
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
-# ================== TELEGRAM BOT HANDLERS ==================
-
+# ====== TELEGRAM HANDLERS ======
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.reply_to(message, "🤖 Hello! Your bot is running successfully on Render!")
@@ -21,27 +19,40 @@ def start(message):
 def echo(message):
     bot.reply_to(message, f"You said: {message.text}")
 
-# ================== FLASK APP ==================
-
-app = Flask(_name_)
+# ====== FLASK APP ======
+app = Flask(_name)  # <-- fixed: __name, not _name
 
 @app.route("/")
 def home():
     return "✅ Telegram Bot + Flask server running on Render!", 200
 
-# ================== BACKGROUND BOT THREAD ==================
+@app.route("/healthz")
+def health():
+    return "ok", 200
+
+# ====== BACKGROUND POLLING THREAD ======
+_bot_thread_started = False
+_bot_thread = None
 
 def run_bot():
     print("🚀 Telegram bot polling started...")
-    bot.infinity_polling(timeout=60, long_polling_timeout = 60)
+    # Keep timeouts modest so Gunicorn shutdowns are graceful
+    bot.infinity_polling(timeout=60, long_polling_timeout=60)
 
-# ================== MAIN ==================
+def ensure_bot_thread():
+    global _bot_thread_started, _bot_thread
+    if not _bot_thread_started:
+        _bot_thread = threading.Thread(target=run_bot, daemon=True, name="telebot-poller")
+        _bot_thread.start()
+        _bot_thread_started = True
+        print("🧵 TeleBot thread started")
 
+# Start the bot thread on module import so it works under Gunicorn (render runs: gunicorn bot:app)
+ensure_bot_thread()
+
+# ====== LOCAL DEV ENTRYPOINT (ignored on Render/Gunicorn) ======
 if _name_ == "_main_":
-    # Start Telegram bot in background
-    threading.Thread(target=run_bot, daemon=True).start()
-
-    # Start Flask app (Render requires a web service)
+    # When running locally: starts Flask dev server
     port = int(os.environ.get("PORT", 5000))
     print(f"🌍 Flask server running on port {port}...")
     app.run(host="0.0.0.0", port=port)
