@@ -20,8 +20,7 @@ def echo(message):
     bot.reply_to(message, f"You said: {message.text}")
 
 # ====== FLASK APP ======
-app = Flask(_name)  # <-- fixed: __name, not _name
-
+app = Flask(__name__)  
 @app.route("/")
 def home():
     return "✅ Telegram Bot + Flask server running on Render!", 200
@@ -56,3 +55,4 @@ if _name_ == "_main_":
     port = int(os.environ.get("PORT", 5000))
     print(f"🌍 Flask server running on port {port}...")
     app.run(host="0.0.0.0", port=port)
+
