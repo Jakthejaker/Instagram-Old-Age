@@ -1,6 +1,7 @@
 import os
 import logging
 import threading
+import time
 from flask import Flask
 import telebot
 
@@ -27,16 +28,14 @@ logging.basicConfig(
 def start_cmd(message):
     bot.reply_to(message, "👋 Hello! Your bot is alive and running on Render 🚀")
 
-
 @bot.message_handler(func=lambda m: True)
 def echo_all(message):
     bot.reply_to(message, f"🔁 You said: {message.text}")
 
-
 # ===============================
 # 🌍 Flask Web App (for Render + UptimeRobot)
 # ===============================
-app = Flask(__name__)
+app = Flask(_name_)
 
 @app.route("/")
 def home():
@@ -46,7 +45,6 @@ def home():
 def ping_test():
     return "Bot is alive 🚀"
 
-
 # ===============================
 # 🔄 Run Bot in Background Thread
 # ===============================
@@ -54,7 +52,7 @@ def run_bot():
     logging.info("Starting Telegram bot polling...")
     while True:
         try:
-            bot.infinity_polling(timeout=60, long_polling_timeout = 30)
+            bot.infinity_polling(timeout=60, long_polling_timeout=30)
         except Exception as e:
             logging.error(f"Bot crashed with error: {e}")
             if ADMIN_ID:
@@ -62,13 +60,9 @@ def run_bot():
                     bot.send_message(ADMIN_ID, f"⚠ Bot crashed: {e}")
                 except:
                     pass
-            # small sleep before retry
-            import time
-            time.sleep(5)
-
+            time.sleep(5)  # wait a bit before retrying
 
 threading.Thread(target=run_bot, daemon=True).start()
-
 
 # ===============================
 # 🚀 Flask App Runner
@@ -77,4 +71,3 @@ if _name_ == "_main_":
     port = int(os.environ.get("PORT", 5000))
     logging.info(f"Starting Flask server on port {port}...")
     app.run(host="0.0.0.0", port=port)
-
